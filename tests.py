@@ -19,6 +19,9 @@ class TestSqlBuilder(unittest.TestCase):
         date = datetime.datetime(2010, 1, 15, 23, 59, 38)
         self.assertEqual(str(Q(fecha=date)), "(fecha='2010-01-15 23:59:38')")
 
+        self.assertEqual(str(Q(fecha__year__lte=2012)), "(DATEPART('year', fecha)<=2012)")
+        self.assertEqual(str(Q(fecha__year=2012)), "(DATEPART('year', fecha)=2012)")
+
 
 if __name__ == '__main__':
     unittest.main()
