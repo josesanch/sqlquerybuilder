@@ -162,6 +162,7 @@ class SQLQuery(object):
         self._filters = Q()
         self._excludes = Q()
         self._extra = {}
+        self._limits = None
 
     def values(self, *args):
         self._values = args
@@ -199,6 +200,10 @@ class SQLQuery(object):
 
     def extra(self, extra):
         self._extra.update(extra)
+        return self
+
+    def __getitem__(self, slice):
+        self._limits = slice
         return self
 
 
@@ -253,6 +258,18 @@ class SQLCompiler(object):
             return "  ".join(self._joins)
         return ""
 
+    def get_limits(self,):
+        if self._limits:
+            offset = self._limits.start
+            limit = self._limits.stop
+            if offset:
+                limit = limit - offset
+            str = "LIMIT {0}".format(limit)
+            if offset:
+                str += " OFFSET {0}".format(offset)
+            return str
+        return ""
+
     def _compile(self):
         sql = """
         SELECT {columns}{extra_columns}
@@ -261,6 +278,7 @@ class SQLCompiler(object):
         {where}
         {group_by}
         {order_by}
+        {limits}
         """.format(
             columns=self.get_columns(),
             extra_columns=self.get_extra_columns(),
@@ -268,7 +286,8 @@ class SQLCompiler(object):
             joins=self.get_joins(),
             where=self.get_where(),
             group_by=self.get_group_by(),
-            order_by=self.get_order_by()
+            order_by=self.get_order_by(),
+            limits=self.get_limits()
         )
         return sql
 
