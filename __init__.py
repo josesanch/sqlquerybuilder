@@ -1,3 +1,17 @@
+import datetime
+
+
+def is_number(s):
+    try:
+        float(s)  # for int, long and float
+    except ValueError:
+        try:
+            complex(s)  # for complex
+        except ValueError:
+            return False
+    return True
+
+
 class classproperty(object):
 
     def __init__(self, getter):
@@ -55,7 +69,7 @@ class Operator(QMixin):
 class Q(QMixin):
     lookup_types = [
         'iexact', 'contains', 'icontains',
-        'startswith', 'istartswith', 'endswith', 'iendswith',
+        'startswith', 'istartswith', 'endswith', 'iendswith', 'year',
         'month', 'day', 'week_day', 'hour', 'minute', 'second',
         'isnull', 'search', 'regex', 'iregex']
 
@@ -77,12 +91,25 @@ class Q(QMixin):
 
     __nonzero__ = __bool__
 
+    def _get_value(self, value):
+        if isinstance(value, int) or isinstance(value, float):
+            return value
+
+        if isinstance(value, datetime.datetime):
+            return "'%s'" % value.strftime("%Y-%m-%d %H:%M:%S")
+
+        if isinstance(value, datetime.date):
+            return "'%s'" % value.strftime("%Y-%m-%d")
+
+        return "'%s'" % value
+
     def _process(self, compose_column, value):
+        arr = compose_column.split("__")
+        column = arr.pop(0)
         try:
-            column, lookup = compose_column.split("__")
+            lookup = arr.pop(0)
         except:
             lookup = None
-            column = compose_column
 
         if lookup in self.lookup_types:
             if lookup == "icontains":
@@ -97,13 +124,20 @@ class Q(QMixin):
             if lookup == 'isnull':
                 op = ""
                 if not value:
-                    op = "not"
-                    return "{0} is {1} null".format(column, op)
+                    op = "NOT "
+                return "{0} is {1}NULL".format(column, op)
+
+            if lookup in ['year', 'month', 'day' 'hour', 'minute', 'second']:
+                if arr:
+                    column = "DATEPART('{0}')__{1}".format(lookup, arr.pop(0))
+                    return self._process(column, value)
+                else:
+                    return "DATEPART('{0}')={1}".format(lookup,  value)
 
         if lookup in self.op_map.keys():
-            return "{0}{1}{2}".format(column, self.op_map[lookup], value)
+            return "{0}{1}{2}".format(column, self.op_map[lookup], self._get_value(value))
 
-        return "{0}{1}'{2}'".format(column, "=", value)
+        return "{0}{1}{2}".format(column, "=", self._get_value(value))
 
     def _compile(self,):
         filters = []
