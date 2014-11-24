@@ -34,7 +34,15 @@ Using it
    
    sql.group_by("family")
                 
-                
+
+   qs = Queryset("users")\
+                .filter(nombre="jose")\
+                .order_by( "nombre", "-fecha")\
+                .filter(fecha__lte=F("now()"))[:10]
+
+  "SELECT * FROM users WHERE ((nombre='jose') AND (fecha<=now())) ORDER BY nombre, fecha DESC LIMIT 10"
+  
+   
 str(sql) will result an string with the sql generated
 
 
