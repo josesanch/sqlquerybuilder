@@ -155,12 +155,13 @@ class SQLQuery(object):
     def __init__(self, table=None):
         if table:
             self._table = table
-            self._values = []
-            self._order_by = []
-            self._group_by = []
-            self._joins = []
-            self._filters = Q()
-            self._excludes = Q()
+        self._values = []
+        self._order_by = []
+        self._group_by = []
+        self._joins = []
+        self._filters = Q()
+        self._excludes = Q()
+        self._extra = {}
 
     def values(self, *args):
         self._values = args
@@ -194,7 +195,11 @@ class SQLQuery(object):
         if on:
             on = "ON " + on
             self._joins.append("{how} {table} {on}".format(how=how, table=table, on=on))
-            return self
+        return self
+
+    def extra(self, extra):
+        self._extra.update(extra)
+        return self
 
 
 class SQLCompiler(object):
@@ -204,12 +209,17 @@ class SQLCompiler(object):
             return ", ".join(self._values)
         return "*"
 
+    def get_extra_columns(self,):
+        select = self._extra.get("select", None)
+        if select:
+            return ", " + select
+        return ""
+
     def get_table(self,):
         return self._table
 
     def get_where(self):
         filters = self._filters & ~self._excludes
-
         if filters:
             return "WHERE " + str(filters)
 
@@ -245,7 +255,7 @@ class SQLCompiler(object):
 
     def _compile(self):
         sql = """
-        SELECT {columns}
+        SELECT {columns}{extra_columns}
         FROM {table}
         {joins}
         {where}
@@ -253,6 +263,7 @@ class SQLCompiler(object):
         {order_by}
         """.format(
             columns=self.get_columns(),
+            extra_columns=self.get_extra_columns(),
             table=self.get_table(),
             joins=self.get_joins(),
             where=self.get_where(),
