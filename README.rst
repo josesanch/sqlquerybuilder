@@ -39,9 +39,11 @@ Using it
                 .filter(fecha__lte=F("now()"))[:10]
 
    
-  "SELECT * FROM users WHERE ((nombre='jose') AND (fecha<=now())) ORDER BY nombre, fecha DESC LIMIT 10"
-  
+   "SELECT * FROM users WHERE ((nombre='jose') AND (fecha<=now())) ORDER BY nombre, fecha DESC LIMIT 10"
+
+   Queryset("usuarios").values("name").extra({'select': 'count(*) as total'})
+   "SELECT name , count(*) as total FROM usuarios"
    
-  str(sql) will result an string with the sql generated
+   
 
 
