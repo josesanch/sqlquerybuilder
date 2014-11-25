@@ -8,10 +8,20 @@ setup(
     author='José Sánchez Moreno',
     author_email='jose@o2w.es',
     packages=find_packages(),
-    license='license.txt',
+    license='LICENSE.txt',
     description=u'SQL Query Builder inspired on django ORM Syntax',
-    long_description=open('readme.txt').read(),
+    long_description=open('README.txt').read(),
     url='https://github.com/josesanch/sqlquerybuilder',
-    install_requires=[
+    platforms="All platforms",
+
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Python Software Foundation License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
     ],
+
 )
