@@ -17,7 +17,7 @@ Using it
 
 .. code-block:: python
    
-   from sqlbuilder import SQLModel, Queryset, Q, F
+   from sqlquerybuilder import SQLModel, Queryset, Q, F
    
    class Client(SQLModel):
        table = "clients"
