@@ -4,13 +4,13 @@ from setuptools import find_packages
 
 setup(
     name='sqlquerybuilder',
-    version='0.0.2',
+    version=sqlquerybuilder.VERSION,
     author='José Sánchez Moreno',
     author_email='jose@o2w.es',
     packages=find_packages(),
-    license='LICENSE.txt',
+    license='MIT',
     description=u'SQL Query Builder inspired on django ORM Syntax',
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     url='https://github.com/josesanch/sqlquerybuilder',
     platforms="All platforms",
 

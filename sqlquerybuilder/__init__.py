@@ -1,15 +1,6 @@
 import datetime
 
-
-def is_number(s):
-    try:
-        float(s)  # for int, long and float
-    except ValueError:
-        try:
-            complex(s)  # for complex
-        except ValueError:
-            return False
-    return True
+VERSION = "0.0.3"
 
 
 class classproperty(object):
