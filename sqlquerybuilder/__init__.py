@@ -138,7 +138,7 @@ class Q(QMixin):
                     op = "NOT "
                 return "{0} is {1}NULL".format(column, op)
 
-            if lookup in ['year', 'month', 'day' 'hour', 'minute', 'second']:
+            if lookup in ['year', 'month', 'day', 'hour', 'minute', 'second']:
                 if arr:
                     column = "DATEPART('{0}', {1})__{2}".format(lookup, column, arr.pop(0))
                     return self._process(column, value)
