@@ -43,6 +43,19 @@ class TestSqlBuilder(unittest.TestCase):
         self.assertEqual(
             str(qs), "SELECT * FROM users WHERE ((nombre='jose') AND (fecha<=now())) ORDER BY nombre, fecha DESC LIMIT 10")
 
+    def test_vars(self):
+        sql = Queryset("users")
+        sql = sql.filter(name="jhon")
+        sql = sql.exclude(date__year__lte=1977)
+        sql = sql.values("name", "date")
+        self.assertEqual(
+            str(sql), "SELECT name, date FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
+
+        sql = sql.values("name", "date", "tlf")
+        sql.filter(name="not")
+        sql.filter(name="not")
+        self.assertEqual(
+            str(sql), "SELECT name, date, tlf FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
 
 if __name__ == '__main__':
     unittest.main()

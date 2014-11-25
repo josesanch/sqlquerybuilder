@@ -1,4 +1,5 @@
 import datetime
+import copy
 
 VERSION = "0.0.3"
 
@@ -175,47 +176,58 @@ class SQLQuery(object):
         self._extra = {}
         self._limits = None
 
+    def _clone(self,):
+        return copy.deepcopy(self)
+
     def values(self, *args):
-        self._values = args
-        return self
+        clone = self._clone()
+        clone._values = args
+        return clone
 
     def filter(self, *args, **kwargs):
+        clone = self._clone()
         for arg in args:
             if issubclass(arg.__class__, QMixin):
-                self._filters &= arg
+                clone._filters &= arg
 
-        self._filters &= Q(**kwargs)
-        return self
+        clone._filters &= Q(**kwargs)
+        return clone
 
     def exclude(self, *args, **kwargs):
+        clone = self._clone()
         for arg in args:
             if issubclass(arg.__class__, QMixin):
-                self._excludes &= arg
+                clone._excludes &= arg
 
-        self._excludes &= Q(**kwargs)
-        return self
+        clone._excludes &= Q(**kwargs)
+        return clone
 
     def order_by(self, *args):
-        self._order_by = args
-        return self
+        clone = self._clone()
+        clone._order_by = args
+        return clone
 
-    def group_by(self, *args):
-        self._group_by = args
-        return self
+    def group_by(clone, *args):
+        clone = self._clone()
+        clone._group_by = args
+        return clone
 
     def join(self, table, on="", how="inner join"):
+        clone = self._clone()
         if on:
             on = "ON " + on
-            self._joins.append("{how} {table} {on}".format(how=how, table=table, on=on))
-        return self
+            clone._joins.append("{how} {table} {on}".format(how=how, table=table, on=on))
+        return clone
 
     def extra(self, extra):
-        self._extra.update(extra)
-        return self
+        clone = self._clone()
+        clone._extra.update(extra)
+        return clone
 
     def __getitem__(self, slice):
-        self._limits = slice
-        return self
+        clone = self._clone()
+        clone._limits = slice
+        return clone
 
 
 class SQLCompiler(object):
