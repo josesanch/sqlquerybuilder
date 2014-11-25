@@ -57,5 +57,9 @@ class TestSqlBuilder(unittest.TestCase):
         self.assertEqual(
             str(sql), "SELECT name, date, tlf FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
 
+        sql = sql.extra({'select': 'count(*) as total'})
+        self.assertEqual(
+            str(sql), "SELECT name, date, tlf , count(*) as total FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
+
 if __name__ == '__main__':
     unittest.main()
