@@ -68,10 +68,16 @@ class TestSqlBuilder(unittest.TestCase):
             str(sql), "SELECT * FROM users WHERE (name in ('jose', 'andres'))")
 
         sql = Queryset("users")
-        sql = sql.filter(year__in=[2012, 2014, "jose"])
+        sql = sql.filter(year__in=[2012, 2014, u"José"])
         self.assertEqual(
-            str(sql), "SELECT * FROM users WHERE (year in (2012, 2014, 'jose'))")
+            unicode(sql), u"SELECT * FROM users WHERE (year in (2012, 2014, 'José'))")
 
+        user = Queryset("users").filter(id=100).values("id")
+        self.assertEqual(str(user), "SELECT id FROM users WHERE (id=100)")
+
+        invoices = Queryset("invoices").filter(user_id__in=user)
+        self.assertEqual(
+            str(invoices), "SELECT * FROM invoices WHERE (user_id in (SELECT id FROM users WHERE (id=100)))")
 
 if __name__ == '__main__':
     unittest.main()

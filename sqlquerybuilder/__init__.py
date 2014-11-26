@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import datetime
 import copy
 
@@ -100,7 +101,7 @@ class Q(QMixin):
 
     def _get_value(self, value):
         if isinstance(value, int) or isinstance(value, float):
-            return str(value)
+            return unicode(value)
 
         if isinstance(value, datetime.datetime):
             return "'%s'" % value.strftime("%Y-%m-%d %H:%M:%S")
@@ -111,8 +112,8 @@ class Q(QMixin):
         if isinstance(value, list) or isinstance(value, set):
             return ", ".join([self._get_value(item) for item in value])
 
-        if isinstance(value, F):
-            return value
+        if isinstance(value, F) or isinstance(value, QMixin) or isinstance(value, SQLQuery):
+            return unicode(value)
 
         return "'%s'" % value
 
@@ -212,7 +213,7 @@ class SQLQuery(object):
         clone._order_by = args
         return clone
 
-    def group_by(clone, *args):
+    def group_by(self, *args):
         clone = self._clone()
         clone._group_by = args
         return clone
@@ -253,7 +254,7 @@ class SQLCompiler(object):
     def get_where(self):
         filters = self._filters & ~self._excludes
         if filters:
-            return "WHERE " + str(filters)
+            return "WHERE " + unicode(filters)
 
     def get_order_by(self,):
         conds = []
