@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import datetime
 import copy
 
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 
 
 class classproperty(object):
@@ -135,7 +135,7 @@ class Q(QMixin):
             if lookup == "istartwith":
                 return "{0} like '{1}%'".format(column, value)
 
-            if lookup == "in" and value:
+            if lookup == "in":
                 return "{0} in ({1})".format(column, self._get_value(value))
 
             if lookup == 'isnull':
