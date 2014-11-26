@@ -1,5 +1,6 @@
 import datetime
 import copy
+import collections
 
 VERSION = "0.0.3"
 
@@ -76,10 +77,9 @@ class F(object):
 
 class Q(QMixin):
     lookup_types = [
-        'iexact', 'contains', 'icontains',
-        'startswith', 'istartswith', 'endswith', 'iendswith', 'year',
-        'month', 'day', 'week_day', 'hour', 'minute', 'second',
-        'isnull', 'search', 'regex', 'iregex']
+        'icontains', 'istartswith',  'iendswith',
+        'year', 'month', 'day', 'week_day', 'hour', 'minute', 'second',
+        'isnull', 'in']
 
     op_map = {
         'lte': '<=',
@@ -101,13 +101,16 @@ class Q(QMixin):
 
     def _get_value(self, value):
         if isinstance(value, int) or isinstance(value, float):
-            return value
+            return str(value)
 
         if isinstance(value, datetime.datetime):
             return "'%s'" % value.strftime("%Y-%m-%d %H:%M:%S")
 
         if isinstance(value, datetime.date):
             return "'%s'" % value.strftime("%Y-%m-%d")
+
+        if isinstance(value, list) or isinstance(value, set):
+            return ", ".join([self._get_value(item) for item in value])
 
         if isinstance(value, F):
             return value
@@ -131,6 +134,9 @@ class Q(QMixin):
 
             if lookup == "istartwith":
                 return "{0} like '{1}%'".format(column, value)
+
+            if lookup == "in" and value:
+                return "{0} in ({1})".format(column, self._get_value(value))
 
             if lookup == 'isnull':
                 op = ""

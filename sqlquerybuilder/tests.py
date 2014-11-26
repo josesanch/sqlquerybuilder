@@ -29,7 +29,7 @@ class TestSqlBuilder(unittest.TestCase):
     def test_compound(self):
         qs = Queryset("users", "SQL_SERVER")\
             .filter(nombre="jose")\
-            .order_by( "nombre", "-fecha")\
+            .order_by("nombre", "-fecha")\
             .filter(fecha__lte=F("now()"))[:10]
 
         self.assertEqual(
@@ -60,6 +60,18 @@ class TestSqlBuilder(unittest.TestCase):
         sql = sql.extra({'select': 'count(*) as total'})
         self.assertEqual(
             str(sql), "SELECT name, date, tlf , count(*) as total FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
+
+    def test_in(self,):
+        sql = Queryset("users")
+        sql = sql.filter(name__in=["jose", "andres"])
+        self.assertEqual(
+            str(sql), "SELECT * FROM users WHERE (name in ('jose', 'andres'))")
+
+        sql = Queryset("users")
+        sql = sql.filter(year__in=[2012, 2014, "jose"])
+        self.assertEqual(
+            str(sql), "SELECT * FROM users WHERE (year in (2012, 2014, 'jose'))")
+
 
 if __name__ == '__main__':
     unittest.main()
