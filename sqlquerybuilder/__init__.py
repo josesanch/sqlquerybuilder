@@ -311,7 +311,7 @@ class SQLCompiler(object):
 
     @property
     def sql(self,):
-        return self.__str__(self)
+        return self.__str__()
 
 
 class Queryset(SQLCompiler, SQLQuery):
