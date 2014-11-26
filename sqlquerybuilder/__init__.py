@@ -309,6 +309,10 @@ class SQLCompiler(object):
 
     __str__ = __repr__
 
+    @property
+    def sql(self,):
+        return self.__str__(self)
+
 
 class Queryset(SQLCompiler, SQLQuery):
     pass
