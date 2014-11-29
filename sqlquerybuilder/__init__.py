@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import datetime
 import copy
 
-VERSION = "0.0.5"
+VERSION = "0.0.6"
 
 
 class classproperty(object):
@@ -78,6 +78,7 @@ class F(object):
 class Q(QMixin):
     lookup_types = [
         'icontains', 'istartswith',  'iendswith',
+        'contains', 'startswith',  'endswith',
         'year', 'month', 'day', 'week_day', 'hour', 'minute', 'second',
         'isnull', 'in']
 
@@ -127,13 +128,22 @@ class Q(QMixin):
 
         if lookup in self.lookup_types:
             if lookup == "icontains":
-                return "{0} like '%{1}%'".format(column, value)
+                return "{0} LIKE '%{1}%'".format(column, value)
 
             if lookup == "iendswith":
-                return "{0} like '%{1}'".format(column, value)
+                return "{0} LIKE '%{1}'".format(column, value)
 
-            if lookup == "istartwith":
-                return "{0} like '{1}%'".format(column, value)
+            if lookup == "istartswith":
+                return "{0} LIKE '{1}%'".format(column, value)
+
+            if lookup == "contains":
+                return "{0} LIKE BINARY '%{1}%'".format(column, value)
+
+            if lookup == "endswith":
+                return "{0} LIKE BINARY '%{1}'".format(column, value)
+
+            if lookup == "startswith":
+                return "{0} LIKE BINARY '{1}%'".format(column, value)
 
             if lookup == "in":
                 return "{0} in ({1})".format(column, self._get_value(value))

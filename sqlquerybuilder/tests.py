@@ -1,6 +1,6 @@
 import unittest
 import datetime
-from . import Q, Queryset, F
+from sqlquerybuilder import Q, Queryset, F
 
 
 class TestSqlBuilder(unittest.TestCase):
@@ -11,6 +11,15 @@ class TestSqlBuilder(unittest.TestCase):
         self.assertEqual(str(Q(nombre="jose")), "(nombre='jose')")
         self.assertEqual(str(Q(a__isnull=True)), "(a is NULL)")
         self.assertEqual(str(Q(a__isnull=False)), "(a is NOT NULL)")
+
+        self.assertEqual(str(Q(a__startswith="a")), "(a LIKE BINARY 'a%')")
+        self.assertEqual(str(Q(a__istartswith="a")), "(a LIKE 'a%')")
+
+        self.assertEqual(str(Q(a__endswith="a")), "(a LIKE BINARY '%a')")
+        self.assertEqual(str(Q(a__iendswith="a")), "(a LIKE '%a')")
+
+        self.assertEqual(str(Q(a__contains="a")), "(a LIKE BINARY '%a%')")
+        self.assertEqual(str(Q(a__icontains="a")), "(a LIKE '%a%')")
 
     def test_dates(self):
         date = datetime.date(2010, 1, 15)
