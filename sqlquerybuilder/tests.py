@@ -66,9 +66,21 @@ class TestSqlBuilder(unittest.TestCase):
         self.assertEqual(
             str(sql), "SELECT name, date, tlf FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
 
+    def test_extra(self):
+        sql = Queryset("users").values("name", "date", "tlf")
         sql = sql.extra({'select': 'count(*) as total'})
         self.assertEqual(
-            str(sql), "SELECT name, date, tlf , count(*) as total FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
+            str(sql), "SELECT name, date, tlf, count(*) as total FROM users")
+
+        sql = Queryset("users")
+        sql = sql.extra(where=["id=1", "name='jose'"])
+        sql = sql.extra(select="count(*) as total")
+        self.assertEqual(
+            str(sql), "SELECT *, count(*) as total FROM users WHERE id=1 AND name='jose'")
+
+        sql = sql.values(*[])
+        self.assertEqual(
+            str(sql), "SELECT count(*) as total FROM users WHERE id=1 AND name='jose'")
 
     def test_in(self,):
         sql = Queryset("users")
