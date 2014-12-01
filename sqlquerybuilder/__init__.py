@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import datetime
 import copy
 
-VERSION = "0.0.8"
+VERSION = "0.0.9"
 
 
 class classproperty(object):
@@ -156,10 +156,10 @@ class Q(QMixin):
 
             if lookup in ['year', 'month', 'day', 'hour', 'minute', 'second']:
                 if arr:
-                    column = "DATEPART('{0}', {1})__{2}".format(lookup, column, arr.pop(0))
+                    column = "DATEPART({0}, {1})__{2}".format(lookup, column, arr.pop(0))
                     return self._process(column, value)
                 else:
-                    return "DATEPART('{0}', {1})={2}".format(lookup, column, value)
+                    return "DATEPART({0}, {1})={2}".format(lookup, column, value)
 
         if lookup in self.op_map.keys():
             return "{0}{1}{2}".format(column, self.op_map[lookup], self._get_value(value))

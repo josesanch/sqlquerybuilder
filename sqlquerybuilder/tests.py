@@ -28,8 +28,8 @@ class TestSqlBuilder(unittest.TestCase):
         date = datetime.datetime(2010, 1, 15, 23, 59, 38)
         self.assertEqual(str(Q(fecha=date)), "(fecha='2010-01-15 23:59:38')")
 
-        self.assertEqual(str(Q(fecha__year__lte=2012)), "(DATEPART('year', fecha)<=2012)")
-        self.assertEqual(str(Q(fecha__year=2012)), "(DATEPART('year', fecha)=2012)")
+        self.assertEqual(str(Q(fecha__year__lte=2012)), "(DATEPART(year, fecha)<=2012)")
+        self.assertEqual(str(Q(fecha__year=2012)), "(DATEPART(year, fecha)=2012)")
 
     def test_limits(self):
         self.assertEqual(Queryset("table")[:10].get_limits(), "LIMIT 10")
@@ -58,13 +58,13 @@ class TestSqlBuilder(unittest.TestCase):
         sql = sql.exclude(date__year__lte=1977)
         sql = sql.values("name", "date")
         self.assertEqual(
-            str(sql), "SELECT name, date FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
+            str(sql), "SELECT name, date FROM users WHERE ((name='jhon') AND NOT (DATEPART(year, date)<=1977))")
 
         sql = sql.values("name", "date", "tlf")
         sql.filter(name="not")
         sql.filter(name="not")
         self.assertEqual(
-            str(sql), "SELECT name, date, tlf FROM users WHERE ((name='jhon') AND NOT (DATEPART('year', date)<=1977))")
+            str(sql), "SELECT name, date, tlf FROM users WHERE ((name='jhon') AND NOT (DATEPART(year, date)<=1977))")
 
     def test_extra(self):
         sql = Queryset("users").values("name", "date", "tlf")
