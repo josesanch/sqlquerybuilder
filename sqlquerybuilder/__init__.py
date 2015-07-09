@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
-import datetime
-import copy
 
-VERSION = "0.0.11"
+import copy
+import datetime
+
+VERSION = "0.0.12"
 
 
 class classproperty(object):
@@ -109,13 +110,13 @@ class Q(QMixin):
 
     @property
     def date_format(self):
-        if self._mode == 'SQLSERVER':
+        if self._mode == 'SQL_SERVER':
             return "%Y-%d-%m"
         return "%Y-%m-%d"
 
     @property
     def datetime_format(self):
-        if self._mode == 'SQLSERVER':
+        if self._mode == 'SQL_SERVER':
             return "%Y-%d-%m %H:%M:%S"
         return "%Y-%m-%d %H:%M:%S"
 
