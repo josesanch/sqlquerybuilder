@@ -3,7 +3,15 @@ from __future__ import unicode_literals
 import copy
 import datetime
 
-VERSION = "0.0.12"
+VERSION = "0.0.13"
+
+
+def ensureUtf(s):
+    try:
+        if type(s) == unicode:
+            return s.encode('utf8', 'ignore')
+    except:
+        return str(s)
 
 
 class classproperty(object):
@@ -122,7 +130,7 @@ class Q(QMixin):
 
     def _get_value(self, value):
         if isinstance(value, int) or isinstance(value, float):
-            return unicode(value)
+            return ensureUtf(value)
 
         if isinstance(value, datetime.datetime):
             return "'%s'" % value.strftime(self.datetime_format)
@@ -130,11 +138,11 @@ class Q(QMixin):
         if isinstance(value, datetime.date):
             return "'%s'" % value.strftime(self.date_format)
 
-        if isinstance(value, list) or isinstance(value, set):
+        if isinstance(value, list) or isinstance(value, set) or isinstance(value, map):
             return ", ".join([self._get_value(item) for item in value])
 
         if isinstance(value, F) or isinstance(value, QMixin) or isinstance(value, SQLQuery):
-            return unicode(value)
+            return ensureUtf(value)
 
         return "'%s'" % value
 
@@ -304,7 +312,7 @@ class SQLCompiler(object):
         return self._table
 
     def get_where(self):
-        filters = unicode(self._filters & ~self._excludes)
+        filters = ensureUtf(self._filters & ~self._excludes)
         extra_where = self.get_extra_where()
 
         if filters or extra_where:
@@ -388,7 +396,7 @@ class SQLCompiler(object):
         return sql
 
     def _compile(self):
-        return " ".join([unicode(item) for item in self.get_sql_structure() if item])
+        return " ".join([ensureUtf(item) for item in self.get_sql_structure() if item])
 
     def __repr__(self):
         return self._compile()
