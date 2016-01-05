@@ -1,14 +1,22 @@
 from __future__ import unicode_literals
-
+import sys
 import copy
 import datetime
 
+PYTHON3 = True
+if sys.version_info[0] < 3:
+    PYTHON3 = False
+
 VERSION = "0.0.13"
 
+def is_map(obj):
+    return PYTHON3 and isinstance(obj, map)
 
 def ensureUtf(s):
     try:
-        if type(s) == unicode:
+        if isinstance(s, str):
+            return s
+        else:
             return s.encode('utf8', 'ignore')
     except:
         return str(s)
@@ -138,7 +146,7 @@ class Q(QMixin):
         if isinstance(value, datetime.date):
             return "'%s'" % value.strftime(self.date_format)
 
-        if isinstance(value, list) or isinstance(value, set) or isinstance(value, map):
+        if isinstance(value, list) or isinstance(value, set) or is_map(value):
             return ", ".join([self._get_value(item) for item in value])
 
         if isinstance(value, F) or isinstance(value, QMixin) or isinstance(value, SQLQuery):
@@ -226,6 +234,7 @@ class SQLQuery(object):
         self._extra = {}
         self._limits = None
         self._sql = sql
+        self._nolock = False
 
     def has_filters(self,):
         return self._order_by or self._group_by or self._joins\
@@ -250,6 +259,11 @@ class SQLQuery(object):
     def values(self, *args):
         clone = self._clone()
         clone._values = list(args)
+        return clone
+
+    def with_nolock(self, enabled=True):
+        clone = self._clone()
+        clone._nolock = enabled
         return clone
 
     def filter(self, *args, **kwargs):
@@ -346,6 +360,11 @@ class SQLCompiler(object):
         if self._joins:
             return "  ".join(self._joins)
 
+    def get_nolock(self,):
+        if self._nolock:
+            return " WITH (NOLOCK)"
+        return ""
+
     def get_limits(self,):
         if self._limits and self.sql_mode != "SQL_SERVER":
             offset = self._limits.start
@@ -370,7 +389,8 @@ class SQLCompiler(object):
             table = self.get_table()
 
         sql = ["SELECT", self.get_top(), self.get_columns(),
-               "FROM", table, "WITH (NOLOCK)",
+               "FROM", table,
+               self.get_nolock(),
                self.get_joins(), self.get_where(),
                self.get_group_by(), self.get_order_by(),
                self.get_limits()]
@@ -389,7 +409,8 @@ class SQLCompiler(object):
 
             return ["SELECT * FROM (", "SELECT", ",".join([paginate, self.get_columns()]),
                     "FROM", table,
-                    self.get_joins(), self.get_where(),
+                    self.get_joins(),
+                    self.get_where(),
                     self.get_group_by(),
                     self.get_limits(), ") as tbl_paginated WHERE ", conds]
 
